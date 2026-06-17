@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Puedes cambiar "mysql" por "postgresql" dependiendo de tu servidor
+datasource db {
+  provider = "mysql"
+}
+
+// Enum para manejar los distintos tipos de usuarios en la plataforma
+enum Role {
+  PATIENT
+  PSYCHOLOGIST
+  PARENT
+  ADMIN
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String
+  role      Role     @default(PATIENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  journalEntries JournalEntry[]
+  appointments   Appointment[]
+}
+
+model JournalEntry {
+  id        Int      @id @default(autoincrement())
+  content   String   @db.Text // Lo que escribe el paciente
+  aiSummary String?  @db.Text // El resumen o análisis que devolverá Gemini
+  sentiment String?           // Ej. "Ansiedad", "Depresión", "Estable"
+  createdAt DateTime @default(now())
+  
+  // Relación con el usuario (Paciente)
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Appointment {
+  id              Int      @id @default(autoincrement())
+  date            DateTime
+  status          String   @default("PENDING") // PENDING, CONFIRMED, CANCELLED
+  isOnline        Boolean  @default(true)
+  
+  // Relación con los usuarios involucrados
+  patientId       Int
+  psychologistId  Int
+  
+  patient         User     @relation(fields: [patientId], references: [id])
+  // En Prisma, cuando hay múltiples relaciones al mismo modelo (User), 
+  // se deben nombrar explícitamente, pero lo dejaremos simple por ahora.
+}
