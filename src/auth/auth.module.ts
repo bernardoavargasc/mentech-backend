@@ -3,17 +3,20 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { UsersModule } from '../users/users.module';
 import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport'; // 👈 Importamos Passport
+import { JwtStrategy } from './jwt.strategy'; // 👈 Importamos la estrategia
 
 @Module({
   imports: [
-    UsersModule, // Conectamos con el módulo de usuarios
+    UsersModule, 
+    PassportModule, // 👈 Lo agregamos a los imports
     JwtModule.register({
-      global: true, // Esto nos permitirá usar el gafete en toda la plataforma
+      global: true, 
       secret: process.env.JWT_SECRET || 'clave_secreta_temporal_mentech_2026', 
-      signOptions: { expiresIn: '12h' }, // La sesión del usuario durará 12 horas
+      signOptions: { expiresIn: '12h' }, 
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, JwtStrategy], // 👈 Registramos JwtStrategy como proveedor
 })
 export class AuthModule {}
