@@ -5,8 +5,9 @@ import { PrismaModule } from './prisma/prisma.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { MoodModule } from './mood/mood.module';
-import { ActivityModule } from './activity/activity.module';
-import { SosModule } from './sos/sos.module'; // 👈 El nuevo módulo de emergencias
+import { ActivityModule } from './activity/activity.service.ts/activity.module';
+import { SosModule } from './sos/sos.module';
+
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { SosModule } from './sos/sos.module'; // 👈 El nuevo módulo de emerge
     AuthModule,
     MoodModule,
     ActivityModule,
-    SosModule // 👈 Registrado aquí para que NestJS lo reconozca
+    SosModule
   ],
   controllers: [AppController],
   providers: [AppService],
