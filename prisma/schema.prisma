@@ -16,17 +16,21 @@ enum Role {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  password  String
-  name      String
-  role      Role     @default(PATIENT)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id             Int            @id @default(autoincrement())
+  email          String         @unique
+  password       String
+  name           String
+  role           Role           @default(PATIENT)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
 
   // Relaciones
   journalEntries JournalEntry[]
   appointments   Appointment[]
+  
+  // Nuevas relaciones para el Dashboard
+  moods          Mood[]
+  activities     Activity[]
 }
 
 model JournalEntry {
@@ -42,16 +46,40 @@ model JournalEntry {
 }
 
 model Appointment {
-  id              Int      @id @default(autoincrement())
-  date            DateTime
-  status          String   @default("PENDING") // PENDING, CONFIRMED, CANCELLED
-  isOnline        Boolean  @default(true)
+  id             Int      @id @default(autoincrement())
+  date           DateTime
+  status         String   @default("PENDING") // PENDING, CONFIRMED, CANCELLED
+  isOnline       Boolean  @default(true)
   
   // Relación con los usuarios involucrados
-  patientId       Int
-  psychologistId  Int
+  patientId      Int
+  psychologistId Int
   
-  patient         User     @relation(fields: [patientId], references: [id])
+  patient        User     @relation(fields: [patientId], references: [id])
   // En Prisma, cuando hay múltiples relaciones al mismo modelo (User), 
   // se deben nombrar explícitamente, pero lo dejaremos simple por ahora.
+}
+
+// Tabla para el Bloque 2: Estado de Ánimo
+model Mood {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  state     String   // "Tranquilo", "Ansioso", "Feliz", etc.
+  createdAt DateTime @default(now()) // Guarda la fecha y hora exacta
+  
+  // Relación con el usuario
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+// Tabla para el Bloque 3: Actividades
+model Activity {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  name        String   // "Diario de Gratitud", "Meditación de respiración"
+  duration    Int?     // Tiempo en minutos (opcional)
+  isCompleted Boolean  @default(false) // Empieza como NO completada (gris)
+  date        DateTime @default(now()) // Para saber qué día se hizo
+  
+  // Relación con el usuario
+  user        User     @relation(fields: [userId], references: [id])
 }

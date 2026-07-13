@@ -1,4 +1,5 @@
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, Get, UseGuards, Request } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport'; // Importación necesaria para proteger la ruta
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 
@@ -6,10 +7,17 @@ import { LoginDto } from './dto/login.dto';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @HttpCode(HttpStatus.OK) // Por defecto NestJS devuelve 201 (Created) en los POST, para Login lo correcto es 200 (OK)
+  @HttpCode(HttpStatus.OK)
   @Post('login')
   signIn(@Body() signInDto: LoginDto) {
-    // Le pasamos el correo y la contraseña a nuestro "cadenero"
     return this.authService.login(signInDto.email, signInDto.password);
+  }
+
+  // 👇 NUEVO ENDPOINT PROTEGIDO 👇
+  @UseGuards(AuthGuard('jwt')) 
+  @Get('profile')
+  getProfile(@Request() req) {
+    // req.user contiene los datos decodificados del token de acceso
+    return req.user;
   }
 }
